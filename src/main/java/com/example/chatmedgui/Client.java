@@ -7,6 +7,7 @@ import javafx.geometry.VPos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -35,11 +36,10 @@ public class Client {
     PrintWriter out;
     BufferedReader in;
     BufferedReader stdIn;
-    TextFlow CHAT = new TextFlow();
-    TextArea CHAT_INPUT = new TextArea();
-    Button BUTTON_SEND = new Button("SEND");
-    TextFlow inputTextFlow = new TextFlow(CHAT_INPUT);
-    VBox chatContainer = new VBox();
+
+    private TextArea chatArea;  // Added TextArea for displaying chat messages
+    private TextField inputField;  // Added TextField for user input
+    private Button sendButton;
 
     private void chooseUserName(PrintWriter out, BufferedReader in) throws IOException {
         //Gui beder om indtastning
@@ -99,6 +99,7 @@ public class Client {
 
         if (message.equalsIgnoreCase("exit")) {
             out.println("400" + sessionID);
+
         } else {
             if (message.length() == 0) {
                 message = null;
@@ -116,27 +117,32 @@ public class Client {
             }
         }
     }
-
-    public void addMessageToChat(String message){
+    public void setUpButtonSend() {
+        sendButton.setOnAction(e -> {
+            String message = inputField.getText();
+            messageToServer.add(message);
+            inputField.setText("");
+        });
+    }
+    public void addMessageToChat(String message) {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                Text text = new Text(message + "\n");
-                CHAT.getChildren().add(text);
+                chatArea.appendText(message + "\n");
             }
         });
-
     }
-    public void setUpButtonSend() {
-        BUTTON_SEND.setOnAction(e -> {
-            String message = CHAT_INPUT.getText();
-            messageToServer.add(message);
-            CHAT_INPUT.setText("");
-        });
+    public void disconnect() {
+        out.println(400+sessionID);
     }
-    Client(GridPane grid) throws IOException {
+    Client(TextArea chatArea, TextField inputField,Button sendButton) throws IOException {
         String serverAddress = "localhost";
         int serverPort = 1992;
+        this.chatArea = chatArea;
+        this.inputField = inputField;
+        this.sendButton = sendButton;
+
+
         try {
             socket = new Socket(serverAddress, serverPort);
             out = new PrintWriter(socket.getOutputStream(), true);
@@ -153,41 +159,6 @@ public class Client {
                 }
             }
             chooseUserName(out, in);
-
-
-            chatContainer.getStyleClass().add("chat-container");
-            chatContainer.getChildren().add(inputTextFlow);
-            VBox.setVgrow(CHAT, Priority.ALWAYS);
-            VBox.setVgrow(inputTextFlow, Priority.NEVER); // Adjust as needed
-            VBox.setMargin(inputTextFlow, new Insets(5)); // Add spacing
-
-
-            CHAT.getStyleClass().add("text-flow");
-            CHAT.setPadding(new Insets(5, 5, 5, 5));
-            GridPane.setHgrow(CHAT, Priority.ALWAYS);
-            GridPane.setVgrow(CHAT, Priority.ALWAYS);
-            ScrollPane sp = new ScrollPane();
-            sp.setContent(CHAT);
-            GridPane.setConstraints(sp, 0, 0);
-
-            CHAT_INPUT.getStyleClass().add("chat-message");
-
-
-            CHAT_INPUT.getStyleClass().add("chat-input");
-            CHAT_INPUT.setPromptText("Enter message...");
-            GridPane.setHgrow(CHAT_INPUT, Priority.ALWAYS);
-            GridPane.setVgrow(CHAT_INPUT, Priority.ALWAYS);
-            GridPane.setConstraints(CHAT_INPUT, 0, 1);
-
-            BUTTON_SEND.getStyleClass().add("button-send");
-            GridPane.setHgrow(BUTTON_SEND, Priority.ALWAYS);
-            GridPane.setVgrow(BUTTON_SEND, Priority.ALWAYS);
-            GridPane.setHalignment(BUTTON_SEND, HPos.RIGHT);
-            GridPane.setValignment(BUTTON_SEND, VPos.TOP);
-            GridPane.setConstraints(BUTTON_SEND, 0, 2);
-
-            grid.getChildren().addAll(sp,BUTTON_SEND,CHAT_INPUT);
-
             setUpButtonSend();
 
             Thread writeToServer = new Thread() {
@@ -238,6 +209,7 @@ public class Client {
 
 
         }
+
 
 }
 
