@@ -1,0 +1,37 @@
+.chat-pane {
+    background-color: #F5F5F5; /* Light gray background */
+    padding: 10px;
+}
+
+.chat-message {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333; /* Text color */
+    -fx-background-color: #f0f0f0; /* Background color */
+    -fx-border-color: #ccc; /* Border color */
+    -fx-border-width: 1px;
+    -fx-padding: 5px;
+}
+
+.chat-input {
+    -fx-font-size: 16px;
+    -fx-text-fill: #333; /* Text color for the input field */
+    -fx-pref-height: 5px;
+
+}
+
+.button-send {
+    -fx-background-color: #007ACC; /* Blue send button */
+    -fx-text-fill: #FFFFFF; /* White text */
+    -fx-pref-width: 100px;
+}
+.chat-container {
+    -fx-background-color: #f0f0f0; /* Background color for the chat container */
+    -fx-padding: 10px;
+    -fx-spacing: 5px; /* Adjust spacing as needed */
+}
+
+.text-flow {
+    -fx-font-size: 16px;
+    -fx-text-fill: #333; /* Text color for incoming messages */
+}

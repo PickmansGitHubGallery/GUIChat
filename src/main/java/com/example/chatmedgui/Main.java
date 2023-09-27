@@ -20,6 +20,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        String cssFile = getClass().getResource("/styles/styles.css").toExternalForm();
         this.window = primaryStage;
         this.window.setTitle("Client");        //Grid
         GridPane gridPane = new GridPane();
@@ -27,6 +28,7 @@ public class Main extends Application {
 
 
         Scene scene = new Scene(gridPane,600,400);
+        scene.getStylesheets().add(cssFile);
         this.window.setScene(scene);
         this.window.show();
 

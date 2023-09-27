@@ -9,6 +9,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
@@ -27,19 +28,18 @@ public class Client {
     static Scanner input = new Scanner(System.in);
 
 
-    private LinkedBlockingQueue<String> messegeToServer = new LinkedBlockingQueue<>();
-    private LinkedBlockingQueue<String> messegeFromServer = new LinkedBlockingQueue<>();
+    private LinkedBlockingQueue<String> messageToServer = new LinkedBlockingQueue<>();
+    private LinkedBlockingQueue<String> messageFromServer = new LinkedBlockingQueue<>();
 
-
-
-    private final TextFlow CHAT = new TextFlow();
-    private final TextArea CHAT_INPUT = new TextArea();
-    private final Button BUTTON_SEND = new Button("SEND");
     Socket socket;
     PrintWriter out;
     BufferedReader in;
     BufferedReader stdIn;
-
+    TextFlow CHAT = new TextFlow();
+    TextArea CHAT_INPUT = new TextArea();
+    Button BUTTON_SEND = new Button("SEND");
+    TextFlow inputTextFlow = new TextFlow(CHAT_INPUT);
+    VBox chatContainer = new VBox();
 
     private void chooseUserName(PrintWriter out, BufferedReader in) throws IOException {
         //Gui beder om indtastning
@@ -130,7 +130,7 @@ public class Client {
     public void setUpButtonSend() {
         BUTTON_SEND.setOnAction(e -> {
             String message = CHAT_INPUT.getText();
-            messegeToServer.add(message);
+            messageToServer.add(message);
             CHAT_INPUT.setText("");
         });
     }
@@ -138,7 +138,6 @@ public class Client {
         String serverAddress = "localhost";
         int serverPort = 1992;
         try {
-            System.out.println("Her1");
             socket = new Socket(serverAddress, serverPort);
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -154,13 +153,25 @@ public class Client {
                 }
             }
             chooseUserName(out, in);
-            CHAT.getStyleClass().add("server-chat");
+
+
+            chatContainer.getStyleClass().add("chat-container");
+            chatContainer.getChildren().add(inputTextFlow);
+            VBox.setVgrow(CHAT, Priority.ALWAYS);
+            VBox.setVgrow(inputTextFlow, Priority.NEVER); // Adjust as needed
+            VBox.setMargin(inputTextFlow, new Insets(5)); // Add spacing
+
+
+            CHAT.getStyleClass().add("text-flow");
             CHAT.setPadding(new Insets(5, 5, 5, 5));
             GridPane.setHgrow(CHAT, Priority.ALWAYS);
             GridPane.setVgrow(CHAT, Priority.ALWAYS);
             ScrollPane sp = new ScrollPane();
             sp.setContent(CHAT);
             GridPane.setConstraints(sp, 0, 0);
+
+            CHAT_INPUT.getStyleClass().add("chat-message");
+
 
             CHAT_INPUT.getStyleClass().add("chat-input");
             CHAT_INPUT.setPromptText("Enter message...");
@@ -177,13 +188,6 @@ public class Client {
 
             grid.getChildren().addAll(sp,BUTTON_SEND,CHAT_INPUT);
 
-            addMessageToChat("Hej");
-            addMessageToChat("Bøh");
-            addMessageToChat("Hvad laver du?");
-            addMessageToChat("Hej");
-            addMessageToChat("Bøh");
-            addMessageToChat("Hvad laver du?");
-
             setUpButtonSend();
 
             Thread writeToServer = new Thread() {
@@ -191,7 +195,7 @@ public class Client {
                     try {
                         String message = "";
                         while(!message.equals("exit")) {
-                            message = messegeToServer.take();
+                            message = messageToServer.take();
                             if (message != null && !message.trim().isEmpty()) {
                                 sendMessage(out, message);
                             }
@@ -211,7 +215,7 @@ public class Client {
                         throw new RuntimeException(e);
                     }
                     System.out.println("Text fra server:" + inputFromServer);
-                    messegeFromServer.add(inputFromServer);
+                    messageFromServer.add(inputFromServer);
                 }
                 });
             listenToServer.start();
@@ -219,7 +223,7 @@ public class Client {
             Thread writeToGUI = new Thread(() -> {
                 while(true){
                     try {
-                        String inputFromServerQueue = messegeFromServer.take();
+                        String inputFromServerQueue = messageFromServer.take();
                         addMessageToChat(inputFromServerQueue);
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
