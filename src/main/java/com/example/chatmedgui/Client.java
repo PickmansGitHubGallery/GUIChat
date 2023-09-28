@@ -37,8 +37,9 @@ public class Client {
     BufferedReader in;
     BufferedReader stdIn;
 
-    private static TextArea chatArea;  // Added TextArea for displaying chat messages
-    private static TextField inputField;  // Added TextField for user input
+    //GUI elementer til at interagere med klienten
+    private static TextArea chatArea;
+    private static TextField inputField;
     private static Button sendButton;
 
     private static String tjekLovligtBrugernavn(String brugernavn) {
@@ -48,17 +49,9 @@ public class Client {
         return brugernavn;
     }
 
-    private static boolean sendUsernameToServer(PrintWriter out, String username) {
-        if (out != null && username != null && !username.isEmpty()) {
-            out.println(username);
-            return true;
-        } else {
-            System.out.println("prøv igen");
-            return false;
 
-        }
-    }
-
+    //sendMessage metoden tager en besked som input,
+    // den analysere hvilken type besked der skal sendes til serveren ud fra det der er skrevet
     public static void sendMessage(PrintWriter out, String message) {
         if (message.charAt(0) == '!') {
             if (message.equalsIgnoreCase("!brugere")) {
@@ -83,6 +76,8 @@ public class Client {
             }
         }
     }
+
+    // denne metoder ændrer action på send knappen, den tager det man skriver i input feltet og smider i queuen
     public void setUpButtonSend() {
         sendButton.setOnAction(e -> {
             String message = inputField.getText();
@@ -98,9 +93,14 @@ public class Client {
             }
         });
     }
+
+    //metoden bliver kaldt når klient vinduet lukkes.
         public void disconnect() {
         out.println(400+sessionID);
     }
+
+    //kontruktøren for klienten. Den opretter forbindelse til serveren og den sætter klientens sessionID når serveren har accepteret
+    // Den modtager GUI elementerne fra main metoden så den kan vise disse.
     Client(TextArea chatArea, TextField inputField,Button sendButton) throws IOException {
         String serverAddress = "localhost";
         int serverPort = 1992;
@@ -127,6 +127,8 @@ public class Client {
             setUpButtonSend();
 
 
+            //denne tråd står og venter på at messageToServer modtager et element,
+            //og sender herefter elementet afsted, så længe at der er en valid besked.
             Thread writeToServer = new Thread() {
                 public void run() {
                     try {
@@ -143,6 +145,9 @@ public class Client {
                 }
             };
             writeToServer.start();
+
+            //Denne tråd lytter til input fra serveren,
+            // den har også logik til at sortere om beskederne er brugernavn eller om brugernavnet er taget.
             Thread listenToServer = new Thread(() -> {
                 while (true) {
                     String inputFromServer = null;
@@ -162,6 +167,8 @@ public class Client {
                 }
                 });
             listenToServer.start();
+
+            //Denne tråd lytter på messageFromServer queuen og printer det i GUI.
             Thread writeToGUI = new Thread(() -> {
                 while(true){
                     try {

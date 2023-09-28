@@ -8,7 +8,7 @@ public class Server {
 
     private static ConcurrentHashMap<String, User> connectedUsers = new ConcurrentHashMap<>();
     private static ArrayList<Message> chatHistory =  new ArrayList<>();
-    private static ExecutorService executor = Executors.newFixedThreadPool(20); // Change the pool size as needed
+    private static ExecutorService executor = Executors.newFixedThreadPool(20); //Styrrer antallet af tråde
     private static String fejl = "";
 
     public String activeUsers(){
@@ -24,6 +24,8 @@ public class Server {
         User user = new User("", clientSocket);
         connectedUsers.put(SID, user);
     }
+
+    //Denne metode sender en privatbesked til en bruger og sender en status tilbage til brugeren der sender beskeden
     public void sendPrivateMessageToUser(String SID, String message, String recieverSID) {
         User reciever = connectedUsers.get(recieverSID);
         User sender = connectedUsers.get(SID);
@@ -49,6 +51,7 @@ public class Server {
         }
     }
 
+    //Denne metode bliver brugt når serveren skal skrive en service besked
     public void serverBroadcastMessage(String name, String message){
         for(Map.Entry<String,User> entry : connectedUsers.entrySet()){
             User user = entry.getValue();
@@ -89,6 +92,8 @@ public class Server {
         }
 
     }
+
+    //Denne metode læser beskederne der kommer fra klienterne og analysere hvilken type request der kommer og udfører dem.
     private void readInput(String input, PrintWriter out) {
         System.out.println(input);
         String status = input.substring(0, 3);
@@ -165,10 +170,13 @@ public class Server {
     }
 
 
+    //denne metode bliver brugt til at dele en besked op i en del der indeholder statuskoder, afsender og modtager, og den beksed der skal sendes.
     public String[] getFirstWordUsingSplit(String input) {
         String[] tokens = input.split(" ", 2);
         return tokens;
     }
+
+
 
 
     public static void main(String[] args) {
@@ -181,9 +189,9 @@ public class Server {
             System.out.println("Server is listening on port " + portNumber);
 
             while (true) {
-                Socket clientSocket = serverSocket.accept();
-                String SID = findFreeSID();
-                theServer.addUser(SID,clientSocket);
+                Socket clientSocket = serverSocket.accept(); //venter på at der kommer en klient og acceptere forbindelsen
+                String SID = findFreeSID(); //finder et ledigt SID
+                theServer.addUser(SID,clientSocket); //tilføjer den forbundende bruger til listen over aktive brugere
 
                 executor.submit(() -> {
                     try (
