@@ -102,7 +102,7 @@ public class Client {
         out.println(400+sessionID);
     }
     Client(TextArea chatArea, TextField inputField,Button sendButton) throws IOException {
-        String serverAddress = "localhost";
+        String serverAddress = "10.200.130.36";
         int serverPort = 1992;
         this.chatArea = chatArea;
         this.inputField = inputField;
