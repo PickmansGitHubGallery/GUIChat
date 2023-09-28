@@ -24,12 +24,23 @@ public class Server {
         User user = new User("", clientSocket);
         connectedUsers.put(SID, user);
     }
-    public void sendMessageToUser(String SID, String message, String receiverSID) {
-        User reciever = connectedUsers.get(receiverSID);
+    public void sendPrivateMessageToUser(String SID, String message, String recieverSID) {
+        User reciever = connectedUsers.get(recieverSID);
         User sender = connectedUsers.get(SID);
         if (reciever != null) {
-            reciever.sendMessage("PM Fra: " +sender.getUsername()+ ": " + message);
+            reciever.sendMessage("PM Fra " +sender.getUsername()+ ": " + message);
+            sendCopyOfPrivateMessageToOwnChat(SID,message,recieverSID);
+
         }
+    }
+    public void sendCopyOfPrivateMessageToOwnChat(String SID, String message,String recieverSID)
+    {
+        User reciever = connectedUsers.get(recieverSID);
+        User sender = connectedUsers.get(SID);
+        if (reciever != null) {
+            sender.sendMessage("PM til " + reciever.getUsername() + ": " + message);
+        }
+
     }
     public void sendBroadcastMessage(String name, String message) {
         for (Map.Entry<String, User> entry : connectedUsers.entrySet()) {
@@ -117,7 +128,11 @@ public class Server {
             if(recieverSID.equals("fejl")) {
                 User u1 = connectedUsers.get(SID);
                 u1.sendMessage("#FEJL Bruger: " + recieverName + " Eksisterer ikke.");
-            } else sendMessageToUser(SID,msg,recieverSID);
+            }
+            else
+            {
+                sendPrivateMessageToUser(SID,msg,recieverSID);
+            }
         }
         if (status.equals("400")) {
             serverBroadcastMessage(connectedUsers.get(SID).getUsername(),"har forladt chatten");

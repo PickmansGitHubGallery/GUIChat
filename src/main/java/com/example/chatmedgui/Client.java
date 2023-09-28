@@ -99,19 +99,19 @@ public class Client {
 
         if (message.equalsIgnoreCase("exit")) {
             out.println("400" + sessionID);
-
-        } else {
+        }
+        else {
             if (message.length() == 0) {
                 message = null;
             }
-            if (message.charAt(0) == '@') {
+            else if (message.charAt(0) == '@') {
                 out.println("300" + sessionID + message.substring(1));
                 message = null;
             }
-            if (message.equalsIgnoreCase("!Brugere")) {
+            else if (message.equalsIgnoreCase("!Brugere")) {
                 out.println("500" + sessionID);
             }
-            if (message != null && !message.trim().isEmpty()) {
+            else if (message != null && !message.trim().isEmpty()) {
                 out.println("200" + sessionID + message);
                 message = null;
             }
