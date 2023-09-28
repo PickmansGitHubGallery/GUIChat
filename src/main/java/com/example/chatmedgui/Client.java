@@ -46,7 +46,6 @@ public class Client {
         String navn = tjekLovligtBrugernavn(tjekBrugerInput());
         //sender brugernavn til server
         out.println("100" + sessionID + navn);
-        System.out.println("100" + sessionID + navn);
         //venter på svar fra severen
         String serverMessage = in.readLine();
         while (serverMessage != null) {
@@ -185,7 +184,6 @@ public class Client {
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                    System.out.println("Text fra server:" + inputFromServer);
                     messageFromServer.add(inputFromServer);
                 }
                 });

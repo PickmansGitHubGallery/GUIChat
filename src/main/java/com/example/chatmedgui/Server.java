@@ -90,7 +90,6 @@ public class Server {
 
     }
     private void readInput(String input, PrintWriter out) {
-        System.out.println(input);
         String status = input.substring(0, 3);
         String SID = input.substring(3,7);
         if (status.equals("100"))
@@ -100,6 +99,7 @@ public class Server {
                 updateName(SID, name);
                 out.println("999");
                 serverBroadcastMessage(name, "har tilsluttet sig chatten");
+                out.println("Kommandoer:" +"\n"+ "For listen over aktive brugere skriv !brugere."+"\n"+ "For at skrive en privatbesked skriv @brugernavn (din besked).");
                 sendRecentHistory(connectedUsers.get(SID));
                 out.flush();
             }
@@ -111,7 +111,6 @@ public class Server {
         if (status.equals("200")) {
             String msg = input.substring(7);
             sendBroadcastMessage(connectedUsers.get(SID).getUsername(),msg);
-            System.out.println("Fejl:" + connectedUsers.get(SID).getUsername() + msg);
             Message m1 = new Message();
             m1.setUser(connectedUsers.get(SID));
             m1.setMsg(msg);
