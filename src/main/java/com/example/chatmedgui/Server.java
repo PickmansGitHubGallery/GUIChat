@@ -14,7 +14,7 @@ public class Server {
     public String activeUsers(){
         String activeUsername = "Liste over brugere: " + "\n";
         for (Map.Entry<String, User> entry : connectedUsers.entrySet()){
-            activeUsername += entry.getValue().getUsername() + "\n";
+            activeUsername += entry.getValue().getUsername() + " ";
         }
 
         return activeUsername;

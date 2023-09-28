@@ -67,9 +67,9 @@ public class Client {
             if (message.substring(0, 5).equalsIgnoreCase("!navn")) {
                 out.println("100" + sessionID + message.substring(6));
             }
-        }
-            if (brugerNavn == null || brugerNavn.trim().isEmpty() && message.charAt(0)!='!' ) {
-                chatArea.appendText("Du skal vælge et brugernavn for at chatte"+"\n");
+        } else {
+            if (brugerNavn == null || brugerNavn.trim().isEmpty() && message.charAt(0) != '!') {
+                chatArea.appendText("Du skal vælge et brugernavn for at chatte" + "\n");
             } else {
                 if (message.length() == 0) {
                     message = null;
@@ -82,6 +82,7 @@ public class Client {
                 }
             }
         }
+    }
     public void setUpButtonSend() {
         sendButton.setOnAction(e -> {
             String message = inputField.getText();
