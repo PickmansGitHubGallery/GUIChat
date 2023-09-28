@@ -132,7 +132,7 @@ public class Client {
             }
         });
     }
-    public void disconnect() {
+        public void disconnect() {
         out.println(400+sessionID);
     }
     Client(TextArea chatArea, TextField inputField,Button sendButton) throws IOException {

@@ -25,6 +25,8 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
+
+
         primaryStage.setTitle("Chat Application");
 
         // Create the chat area (a TextArea)
@@ -51,6 +53,12 @@ public class Main extends Application {
         // Create a scene and set it in the stage
         Scene scene = new Scene(layout, 800, 800);
         primaryStage.setScene(scene);
+        String css = this.getClass().getResource("/styles/styles.css").toExternalForm();
+
+        scene.getStylesheets().add(css);
+        chatArea.getStyleClass().add("chat-message");
+
+        sendButton.getStyleClass().add("button-send");
 
         client = new Client(chatArea, inputField, sendButton);
 
@@ -62,6 +70,8 @@ public class Main extends Application {
         });
 
         primaryStage.setOnCloseRequest(this::onWindowClose);
+
+
         primaryStage.show();
     }
     private void onWindowClose(WindowEvent event) {
