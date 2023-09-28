@@ -37,48 +37,13 @@ public class Client {
     BufferedReader in;
     BufferedReader stdIn;
 
-    private TextArea chatArea;  // Added TextArea for displaying chat messages
-    private TextField inputField;  // Added TextField for user input
-    private Button sendButton;
-
-    private void chooseUserName(PrintWriter out, BufferedReader in) throws IOException {
-        //Gui beder om indtastning
-        String navn = tjekLovligtBrugernavn(tjekBrugerInput());
-        //sender brugernavn til server
-        out.println("100" + sessionID + navn);
-        //venter på svar fra severen
-        String serverMessage = in.readLine();
-        while (serverMessage != null) {
-            //hvis brugernavnet er accepteret
-            if (serverMessage.substring(0, 3).equals("999")) {
-                brugerNavn = navn;
-                break;
-            }
-            //Hvis brugernavnet ikke er ledigt
-            if (serverMessage.substring(0, 3).equals("000")) {
-                System.out.println("Brugernavn er taget prøv igen");
-                serverMessage = null;
-                //metoden kaldes igen for at vælge nyt brugernavn
-                chooseUserName(out, in);
-            }
-        }
-
-    }
-
-    private static String tjekBrugerInput() {
-
-        System.out.println("Opret brugernavn");
-        System.out.println("Brugernavn må ikke indholde mellemrum eller @");
-        String brugernavnInput = input.nextLine();
-        return brugernavnInput;
-    }
+    private static TextArea chatArea;  // Added TextArea for displaying chat messages
+    private static TextField inputField;  // Added TextField for user input
+    private static Button sendButton;
 
     private static String tjekLovligtBrugernavn(String brugernavn) {
-
         while (brugernavn.contains(" ") || brugernavn.contains("@")) {
-            System.out.println("Der må ikke være mellemrum eller @ i dit brugernavn.");
-            System.out.println("Prøv igen");
-            brugernavn = tjekBrugerInput();
+
         }
         return brugernavn;
     }
@@ -95,27 +60,28 @@ public class Client {
     }
 
     public static void sendMessage(PrintWriter out, String message) {
-
-        if (message.equalsIgnoreCase("exit")) {
-            out.println("400" + sessionID);
-        }
-        else {
-            if (message.length() == 0) {
-                message = null;
-            }
-            else if (message.charAt(0) == '@') {
-                out.println("300" + sessionID + message.substring(1));
-                message = null;
-            }
-            else if (message.equalsIgnoreCase("!Brugere")) {
+        if (message.charAt(0) == '!') {
+            if (message.equalsIgnoreCase("!brugere")) {
                 out.println("500" + sessionID);
             }
-            else if (message != null && !message.trim().isEmpty()) {
-                out.println("200" + sessionID + message);
-                message = null;
+            if (message.substring(0, 5).equalsIgnoreCase("!navn")) {
+                out.println("100" + sessionID + message.substring(6));
             }
         }
-    }
+            if (brugerNavn == null || brugerNavn.trim().isEmpty() && message.charAt(0)!='!' ) {
+                chatArea.appendText("Du skal vælge et brugernavn for at chatte"+"\n");
+            } else {
+                if (message.length() == 0) {
+                    message = null;
+                } else if (message.charAt(0) == '@') {
+                    out.println("300" + sessionID + message.substring(1));
+                    message = null;
+                } else if (message != null && !message.trim().isEmpty() && brugerNavn != null && !brugerNavn.trim().isEmpty()) {
+                    out.println("200" + sessionID + message);
+                    message = null;
+                }
+            }
+        }
     public void setUpButtonSend() {
         sendButton.setOnAction(e -> {
             String message = inputField.getText();
@@ -157,8 +123,8 @@ public class Client {
                     break;
                 }
             }
-            chooseUserName(out, in);
             setUpButtonSend();
+
 
             Thread writeToServer = new Thread() {
                 public void run() {
@@ -184,16 +150,24 @@ public class Client {
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                    messageFromServer.add(inputFromServer);
+                    if(inputFromServer.substring(0,3).equals("199")){
+                        brugerNavn =inputFromServer.substring(3);
+                    }
+                    else if (inputFromServer.substring(0,3).equals("099"))
+                    {
+                        chatArea.appendText("Brugernavn"+inputFromServer.substring(3) + "er taget, prøv et andet");
+                    }
+                    else messageFromServer.add(inputFromServer);
                 }
                 });
             listenToServer.start();
-
             Thread writeToGUI = new Thread(() -> {
                 while(true){
                     try {
-                        String inputFromServerQueue = messageFromServer.take();
-                        addMessageToChat(inputFromServerQueue);
+
+                            String inputFromServerQueue = messageFromServer.take();
+                            addMessageToChat(inputFromServerQueue);
+
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
@@ -201,10 +175,11 @@ public class Client {
                 });
             writeToGUI.start();
 
+
+
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         }
-
 
         }
 
