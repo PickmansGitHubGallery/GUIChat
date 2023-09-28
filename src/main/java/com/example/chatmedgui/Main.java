@@ -10,6 +10,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -57,8 +58,9 @@ public class Main extends Application {
 
         scene.getStylesheets().add(css);
         chatArea.getStyleClass().add("chat-message");
-
         sendButton.getStyleClass().add("button-send");
+        inputField.getStyleClass().add("chat-input");
+
 
         client = new Client(chatArea, inputField, sendButton);
 
